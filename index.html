@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Asistencia</title>
+    <title>Dashboard de Asistencia Real</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
     <style>
@@ -15,22 +15,26 @@
             --dark: #212529;
             --gray: #6c757d;
         }
+        
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        
         body {
             background-color: #f0f2f5;
             color: var(--dark);
             line-height: 1.6;
             padding: 20px;
         }
+        
         .container {
             max-width: 1400px;
             margin: 0 auto;
         }
+        
         header {
             text-align: center;
             margin-bottom: 30px;
@@ -40,14 +44,17 @@
             border-radius: 12px;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
         }
+        
         h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
         }
+        
         .subtitle {
             font-size: 1.2rem;
             opacity: 0.9;
         }
+        
         .highlight {
             background-color: #f9c74f;
             color: var(--dark);
@@ -55,6 +62,7 @@
             border-radius: 5px;
             font-weight: bold;
         }
+        
         .upload-section {
             background: white;
             border-radius: 12px;
@@ -63,6 +71,7 @@
             text-align: center;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
         }
+        
         .file-upload {
             display: flex;
             flex-direction: column;
@@ -70,9 +79,11 @@
             gap: 20px;
             margin: 20px 0;
         }
+        
         .file-input {
             display: none;
         }
+        
         .file-label {
             padding: 16px 32px;
             background: linear-gradient(to right, #3498db, #2980b9);
@@ -86,27 +97,32 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
             transition: all 0.3s ease;
         }
+        
         .file-label:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
+        
         .dashboard {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 25px;
             margin-bottom: 30px;
         }
+        
         @media (max-width: 968px) {
             .dashboard {
                 grid-template-columns: 1fr;
             }
         }
+        
         .card {
             background: white;
             border-radius: 12px;
             padding: 25px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
         }
+        
         .card-title {
             font-size: 1.4rem;
             margin-bottom: 20px;
@@ -114,12 +130,14 @@
             border-bottom: 2px solid var(--light);
             padding-bottom: 10px;
         }
+        
         .stats {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 20px;
             margin-bottom: 25px;
         }
+        
         .stat-card {
             background: #f8f9fa;
             border-radius: 10px;
@@ -127,22 +145,26 @@
             text-align: center;
             border-left: 5px solid var(--primary);
         }
+        
         .stat-number {
             font-size: 2.2rem;
             font-weight: bold;
             color: var(--primary);
             margin-bottom: 5px;
         }
+        
         .stat-label {
             color: var(--gray);
             font-size: 1rem;
         }
+        
         .chart-container {
             position: relative;
-            height: 320px;
+            height: 300px;
             width: 100%;
             margin: 15px 0;
         }
+        
         .table-container {
             overflow-x: auto;
             border-radius: 10px;
@@ -151,17 +173,20 @@
             max-height: 500px;
             overflow-y: auto;
         }
+        
         table {
             width: 100%;
             border-collapse: collapse;
             min-width: 1000px;
         }
+        
         th, td {
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #e0e0e0;
             font-size: 0.9rem;
         }
+        
         th {
             background-color: var(--primary);
             color: white;
@@ -169,26 +194,59 @@
             top: 0;
             font-weight: 600;
         }
+        
         tr:nth-child(even) {
             background-color: #f8f9fa;
         }
+        
         tr:hover {
             background-color: #e9ecef;
         }
+        
         .asistio {
             color: #27ae60;
             font-weight: bold;
         }
+        
         .no-asistio {
             color: #e74c3c;
             font-weight: bold;
         }
+        
+        .adicional {
+            color: #3498db;
+            font-weight: bold;
+        }
+        
         .footer {
             text-align: center;
             margin-top: 50px;
             color: var(--gray);
             font-size: 0.95rem;
         }
+        
+        .instructions {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            padding-left: 25px;
+            line-height: 1.8;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
         .status-message {
             margin-top: 15px;
             padding: 12px;
@@ -196,16 +254,52 @@
             text-align: center;
             font-weight: 500;
         }
+        
         .success {
             background-color: #d4edda;
             color: #155724;
         }
+        
         .error {
             background-color: #f8d7da;
             color: #721c24;
         }
+        
         .hidden {
             display: none;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -213,8 +307,9 @@
     <div class="container">
         <header>
             <h1>Dashboard de Asistencia Real</h1>
-            <p class="subtitle">Comparación: Escaneados vs Lista oficial</p>
+            <p class="subtitle">Comparación inteligente: Escaneados vs Lista oficial de invitados</p>
         </header>
+        
         <div class="upload-section">
             <h2>Cargar archivo con ambas listas</h2>
             <div class="file-upload">
@@ -222,43 +317,58 @@
                     <span>📁 Seleccionar archivo CSV</span>
                 </label>
                 <input type="file" id="csv-file" class="file-input" accept=".csv">
-                <p>Archivo debe contener: (1) cédulas escaneadas y (2) lista oficial</p>
+                <p>El archivo debe contener: (1) Personas escaneadas y (2) Lista oficial completa</p>
             </div>
             <div id="status-message" class="status-message hidden"></div>
+            <div id="debug-info" class="debug-info hidden"></div>
         </div>
 
         <div id="dashboard-content" class="hidden">
             <div class="stats">
                 <div class="stat-card">
-                    <div class="stat-number" id="total-invitados">66</div>
-                    <div class="stat-label">Invitados</div>
+                    <div id="total-invitados" class="stat-number">68</div>
+                    <div class="stat-label">Total Invitados</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="total-asistentes">0</div>
-                    <div class="stat-label">Asistieron (escaneados)</div>
+                    <div id="total-asistentes" class="stat-number">40</div>
+                    <div class="stat-label">Asistentes Reales</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="porcentaje-asistencia">0%</div>
-                    <div class="stat-label">Asistencia real</div>
+                    <div id="porcentaje-asistencia" class="stat-number">58.8%</div>
+                    <div class="stat-label">Porcentaje Asistencia</div>
                 </div>
+                <div class="stat-card">
+                    <div id="total-faltantes" class="stat-number">28</div>
+                    <div class="stat-label">No Asistieron</div>
+                </div>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" onclick="filtrarTabla('todos')">Todos los Invitados</button>
+                <button class="filter-btn" onclick="filtrarTabla('asistentes')">Solo Asistentes</button>
+                <button class="filter-btn" onclick="filtrarTabla('faltantes')">Solo Faltantes</button>
+                <button class="filter-btn" onclick="filtrarTabla('adicionales')">Asistentes Adicionales</button>
             </div>
 
             <div class="dashboard">
                 <div class="card">
-                    <h2 class="card-title">Distribución por Institución</h2>
+                    <h2 class="card-title">Estado de Asistencia</h2>
                     <div class="chart-container">
-                        <canvas id="institucionChart"></canvas>
+                        <canvas id="asistenciaChart"></canvas>
                     </div>
+                    
                     <h2 class="card-title">Distribución por Municipio</h2>
                     <div class="chart-container">
                         <canvas id="municipioChart"></canvas>
                     </div>
                 </div>
+                
                 <div class="card">
                     <h2 class="card-title">Distribución por Sexo</h2>
                     <div class="chart-container">
                         <canvas id="sexoChart"></canvas>
                     </div>
+                    
                     <h2 class="card-title">Distribución por Cargo/Rol</h2>
                     <div class="chart-container">
                         <canvas id="cargoChart"></canvas>
@@ -267,28 +377,76 @@
             </div>
 
             <div class="card">
-                <h2 class="card-title">Lista de Asistentes Reales</h2>
+                <h2 class="card-title">Detalle de Asistencia</h2>
                 <div class="table-container">
                     <table id="data-table">
                         <thead>
-                            <tr id="table-headers"></tr>
+                            <tr>
+                                <th>Estado</th>
+                                <th>Institución</th>
+                                <th>Cargo/Rol</th>
+                                <th>Nombre Completo</th>
+                                <th>Documento</th>
+                                <th>Sexo</th>
+                                <th>Municipio</th>
+                                <th>Teléfono</th>
+                            </tr>
                         </thead>
-                        <tbody id="table-body"></tbody>
+                        <tbody id="table-body">
+                            <!-- Los datos se llenarán dinámicamente -->
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
+
+        <div class="instructions">
+            <h3>¿Cómo funciona el sistema?</h3>
+            <ol>
+                <li><strong>Primer listado</strong>: Personas que SÍ asistieron (escaneadas) - 38 personas + 2 adicionales</li>
+                <li><strong>Segundo listado</strong>: Lista completa de invitados oficiales - 68 personas</li>
+                <li><strong>El sistema compara automáticamente</strong> ambos listados por número de documento</li>
+                <li><strong>Identifica quiénes asistieron</strong> y quiénes faltaron</li>
+                <li><strong>Detecta asistentes adicionales</strong> que no estaban en la lista oficial</li>
+            </ol>
+        </div>
+        
+        <div class="footer">
+            <p>Sistema de Control de Asistencia © 2025 - Innovaris Marketing Solutions Consulting Group</p>
+        </div>
     </div>
 
     <script>
-        let institucionChart = null;
+        let asistenciaChart = null;
         let municipioChart = null;
         let sexoChart = null;
         let cargoChart = null;
+        let currentData = [];
+        let filteredData = [];
+        let currentFilter = 'todos';
 
         // Normaliza cédula: elimina puntos, espacios, guiones
         function normalizarCedula(cedula) {
-            return (cedula || '').toString().replace(/[\s.,-]/g, '').trim();
+            if (!cedula) return '';
+            return cedula.toString().replace(/[\s.,-]/g, '').trim();
+        }
+
+        // Función para detectar si una persona asistió basado en múltiples criterios
+        function detectarAsistencia(row, cedulasAsistentes) {
+            const cedula = normalizarCedula(row['No. de identificación']);
+            const asistenciaColumna = row['Asistencia'];
+            
+            // Si tiene check verde (✅) en la columna Asistencia
+            if (asistenciaColumna && asistenciaColumna.includes('✅')) {
+                return 'asistio';
+            }
+            
+            // Si está en la lista de escaneados
+            if (cedula && cedulasAsistentes.has(cedula)) {
+                return 'asistio';
+            }
+            
+            return 'no-asistio';
         }
 
         document.getElementById('csv-file').addEventListener('change', function(e) {
@@ -296,156 +454,350 @@
             if (!file) return;
 
             const status = document.getElementById('status-message');
-            status.textContent = 'Procesando...';
+            const debugInfo = document.getElementById('debug-info');
+            status.textContent = 'Procesando archivo...';
             status.className = 'status-message';
             status.classList.remove('hidden');
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const text = e.target.result;
-                const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
+            Papa.parse(file, {
+                complete: function(results) {
+                    try {
+                        const allData = results.data;
+                        debugInfo.innerHTML = `<strong>Datos crudos:</strong><br>${JSON.stringify(allData.slice(0, 5), null, 2)}`;
+                        debugInfo.classList.remove('hidden');
 
-                // Encontrar inicio de cada bloque
-                let idx1 = -1, idx2 = -1;
-                for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].startsWith('CANTIDAD') && lines[i].includes('Número de Documento')) {
-                        idx1 = i;
-                    }
-                    if (lines[i].startsWith('Institución') && lines[i].includes('Cargo/Rol') && lines[i].includes('Asistencia')) {
-                        idx2 = i;
-                        break;
-                    }
-                }
+                        // Encontrar índices de las tablas
+                        let idxEscaneados = -1;
+                        let idxOficial = -1;
+                        
+                        for (let i = 0; i < allData.length; i++) {
+                            const row = allData[i];
+                            if (Array.isArray(row)) {
+                                const firstCell = row[0] || '';
+                                if (firstCell.toString().includes('CANTIDAD') && row[1] && row[1].includes('Número de Documento')) {
+                                    idxEscaneados = i;
+                                }
+                                if (firstCell.toString().includes('Institución') && row[1] && row[1].includes('Cargo/Rol')) {
+                                    idxOficial = i;
+                                    break;
+                                }
+                            }
+                        }
 
-                if (idx1 === -1 || idx2 === -1) {
-                    status.textContent = '❌ No se encontraron las dos tablas en el archivo.';
+                        if (idxEscaneados === -1 || idxOficial === -1) {
+                            throw new Error('No se pudieron identificar las dos tablas en el archivo');
+                        }
+
+                        // Extraer datos de asistentes escaneados (primer listado)
+                        const datosEscaneados = [];
+                        const cedulasEscaneadas = new Set();
+                        
+                        for (let i = idxEscaneados + 1; i < idxOficial; i++) {
+                            const row = allData[i];
+                            if (Array.isArray(row) && row[1] && row[1].toString().trim() !== '') {
+                                const cedula = normalizarCedula(row[1]);
+                                if (cedula) {
+                                    cedulasEscaneadas.add(cedula);
+                                    datosEscaneados.push({
+                                        documento: cedula,
+                                        primerApellido: row[2] || '',
+                                        segundoApellido: row[3] || '',
+                                        primerNombre: row[4] || '',
+                                        segundoNombre: row[5] || '',
+                                        sexo: row[6] || '',
+                                        tipoSangre: row[8] || ''
+                                    });
+                                }
+                            }
+                        }
+
+                        // Extraer datos de lista oficial (segundo listado)
+                        const headersOficial = allData[idxOficial];
+                        const datosOficial = [];
+                        
+                        for (let i = idxOficial + 1; i < allData.length; i++) {
+                            const row = allData[i];
+                            if (Array.isArray(row) && row[0] && row[0].toString().trim() !== '') {
+                                const registro = {};
+                                headersOficial.forEach((header, index) => {
+                                    registro[header] = row[index] || '';
+                                });
+                                datosOficial.push(registro);
+                            }
+                        }
+
+                        // Procesar datos combinados
+                        procesarDatosCombinados(datosEscaneados, datosOficial, cedulasEscaneadas);
+                        
+                        status.textContent = `✅ Procesado correctamente: ${datosOficial.length} invitados, ${datosEscaneados.length} escaneados`;
+                        status.className = 'status-message success';
+                        
+                    } catch (error) {
+                        status.textContent = `❌ Error: ${error.message}`;
+                        status.className = 'status-message error';
+                        console.error(error);
+                    }
+                },
+                error: function(error) {
+                    status.textContent = `❌ Error al leer el archivo: ${error.message}`;
                     status.className = 'status-message error';
-                    return;
                 }
-
-                // Extraer bloques
-                const bloque1 = lines.slice(idx1, idx2).join('\n');
-                const bloque2 = lines.slice(idx2).join('\n');
-
-                // Parsear lista de escaneados (asistentes reales)
-                const escaneados = Papa.parse(bloque1, { header: true, skipEmptyLines: true }).data;
-                const cedulasAsistentes = new Set();
-                escaneados.forEach(row => {
-                    const ced = normalizarCedula(row['Número de Documento']);
-                    if (ced) cedulasAsistentes.add(ced);
-                });
-
-                // Parsear lista oficial
-                const oficial = Papa.parse(bloque2, { header: true, skipEmptyLines: true }).data;
-
-                // Marcar quiénes asistieron REALMENTE
-                const asistentesReales = [];
-                oficial.forEach(row => {
-                    const cedOficial = normalizarCedula(row['No. de identificación']);
-                    if (cedulasAsistentes.has(cedOficial)) {
-                        row.asistioReal = true;
-                        asistentesReales.push(row);
-                    } else {
-                        row.asistioReal = false;
-                    }
-                });
-
-                const totalInvitados = oficial.length;
-                const totalAsistieron = asistentesReales.length;
-                const porcentaje = totalInvitados > 0 ? ((totalAsistieron / totalInvitados) * 100).toFixed(1) : 0;
-
-                // Actualizar interfaz
-                document.getElementById('total-invitados').textContent = totalInvitados;
-                document.getElementById('total-asistentes').textContent = totalAsistieron;
-                document.getElementById('porcentaje-asistencia').textContent = `${porcentaje}%`;
-
-                // Renderizar gráficos y tabla
-                renderCharts(asistentesReales);
-                renderTable(asistentesReales);
-
-                document.getElementById('dashboard-content').classList.remove('hidden');
-                status.textContent = `✅ ${totalAsistieron} asistieron de ${totalInvitados} invitados.`;
-                status.className = 'status-message success';
-            };
-            reader.readAsText(file);
+            });
         });
 
-        function renderCharts(asistentes) {
-            [institucionChart, municipioChart, sexoChart, cargoChart].forEach(c => {
-                if (c) c.destroy();
+        function procesarDatosCombinados(escaneados, oficial, cedulasEscaneadas) {
+            currentData = [];
+            
+            // Procesar lista oficial
+            oficial.forEach(persona => {
+                const estado = detectarAsistencia(persona, cedulasEscaneadas);
+                const esAdicional = false; // Personas de la lista oficial no son adicionales
+                
+                currentData.push({
+                    ...persona,
+                    estado: estado,
+                    adicional: esAdicional,
+                    tipo: 'oficial'
+                });
             });
 
-            const countBy = (key) => {
+            // Identificar asistentes adicionales (están en escaneados pero no en oficial)
+            escaneados.forEach(escaneado => {
+                const existeEnOficial = oficial.some(oficial => 
+                    normalizarCedula(oficial['No. de identificación']) === escaneado.documento
+                );
+                
+                if (!existeEnOficial) {
+                    // Es un asistente adicional
+                    currentData.push({
+                        'Institución': 'ASISTENTE ADICIONAL',
+                        'Cargo/Rol': 'Invitado Especial',
+                        'Nombres y apellidos completos': `${escaneado.primerNombre} ${escaneado.segundoNombre} ${escaneado.primerApellido} ${escaneado.segundoApellido}`.trim(),
+                        'No. de identificación': escaneado.documento,
+                        'Género\n (M/F)': escaneado.sexo,
+                        'Lugar Origen': 'No especificado',
+                        'Teléfono Móvil': 'No disponible',
+                        estado: 'asistio',
+                        adicional: true,
+                        tipo: 'adicional'
+                    });
+                }
+            });
+
+            // Calcular estadísticas
+            const totalInvitados = oficial.length;
+            const totalAsistentes = currentData.filter(p => p.estado === 'asistio').length;
+            const totalFaltantes = totalInvitados - currentData.filter(p => p.estado === 'asistio' && !p.adicional).length;
+            const porcentaje = totalInvitados > 0 ? ((totalAsistentes / totalInvitados) * 100).toFixed(1) : 0;
+
+            // Actualizar interfaz
+            document.getElementById('total-invitados').textContent = totalInvitados;
+            document.getElementById('total-asistentes').textContent = totalAsistentes;
+            document.getElementById('porcentaje-asistencia').textContent = `${porcentaje}%`;
+            document.getElementById('total-faltantes').textContent = totalFaltantes;
+
+            // Mostrar dashboard
+            document.getElementById('dashboard-content').classList.remove('hidden');
+            
+            // Renderizar gráficos y tabla
+            renderCharts(currentData);
+            filtrarTabla('todos');
+        }
+
+        function renderCharts(data) {
+            // Destruir gráficos existentes
+            [asistenciaChart, municipioChart, sexoChart, cargoChart].forEach(chart => {
+                if (chart) chart.destroy();
+            });
+
+            const asistentes = data.filter(p => p.estado === 'asistio' && !p.adicional);
+            const adicionales = data.filter(p => p.adicional);
+            const faltantes = data.filter(p => p.estado === 'no-asistio');
+
+            // Gráfico de estado de asistencia
+            const ctx1 = document.getElementById('asistenciaChart').getContext('2d');
+            asistenciaChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Asistentes Oficiales', 'Asistentes Adicionales', 'No Asistieron'],
+                    datasets: [{
+                        data: [asistentes.length, adicionales.length, faltantes.length],
+                        backgroundColor: ['#2ecc71', '#3498db', '#e74c3c'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Función auxiliar para contar por campo
+            const countBy = (data, field) => {
                 const counts = {};
-                asistentes.forEach(r => {
-                    const val = (r[key] || 'No especificado').toString().trim() || 'No especificado';
-                    counts[val] = (counts[val] || 0) + 1;
+                data.forEach(item => {
+                    const value = (item[field] || 'No especificado').toString().trim();
+                    counts[value] = (counts[value] || 0) + 1;
                 });
                 return counts;
             };
 
-            const ctx1 = document.getElementById('institucionChart').getContext('2d');
-            institucionChart = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(countBy('Institución')),
-                    datasets: [{ label: 'Asistentes', data: Object.values(countBy('Institución')), backgroundColor: '#3498db' }]
-                },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
-
+            // Gráfico por municipio (solo asistentes oficiales)
             const ctx2 = document.getElementById('municipioChart').getContext('2d');
+            const municipiosData = countBy(asistentes, 'Lugar Origen');
             municipioChart = new Chart(ctx2, {
                 type: 'pie',
                 data: {
-                    labels: Object.keys(countBy('Lugar Origen')),
-                    datasets: [{ data: Object.values(countBy('Lugar Origen')), backgroundColor: ['#e74c3c','#2ecc71','#3498db','#f39c12'] }]
+                    labels: Object.keys(municipiosData),
+                    datasets: [{
+                        data: Object.values(municipiosData),
+                        backgroundColor: ['#e74c3c', '#2ecc71', '#3498db', '#f39c12', '#9b59b6', '#1abc9c']
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
             });
 
+            // Gráfico por sexo
             const ctx3 = document.getElementById('sexoChart').getContext('2d');
+            const sexoData = countBy(asistentes, 'Género\n (M/F)');
             sexoChart = new Chart(ctx3, {
-                type: 'doughnut',
+                type: 'bar',
                 data: {
-                    labels: Object.keys(countBy('Género\n (M/F)')),
-                    datasets: [{ data: Object.values(countBy('Género\n (M/F)')), backgroundColor: ['#3498db','#e74c3c'] }]
+                    labels: Object.keys(sexoData),
+                    datasets: [{
+                        label: 'Asistentes',
+                        data: Object.values(sexoData),
+                        backgroundColor: ['#3498db', '#e74c3c']
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
             });
 
+            // Gráfico por cargo
             const ctx4 = document.getElementById('cargoChart').getContext('2d');
+            const cargoData = countBy(asistentes, 'Cargo/Rol');
             cargoChart = new Chart(ctx4, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(countBy('Cargo/Rol')),
-                    datasets: [{ label: 'Asistentes', data: Object.values(countBy('Cargo/Rol')), backgroundColor: '#9b59b6' }]
+                    labels: Object.keys(cargoData),
+                    datasets: [{
+                        label: 'Asistentes',
+                        data: Object.values(cargoData),
+                        backgroundColor: '#9b59b6'
+                    }]
                 },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
             });
         }
 
-        function renderTable(asistentes) {
-            const head = document.getElementById('table-headers');
-            const body = document.getElementById('table-body');
-            head.innerHTML = '';
-            body.innerHTML = '';
-
-            const cols = ['Institución', 'Cargo/Rol', 'Nombres y apellidos completos', 'Lugar Origen', 'Género\n (M/F)', 'No. de identificación'];
-            cols.forEach(col => {
-                const th = document.createElement('th');
-                th.textContent = col.replace('\n', ' ');
-                head.appendChild(th);
+        function filtrarTabla(filtro) {
+            currentFilter = filtro;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
+            event.target.classList.add('active');
+            
+            switch(filtro) {
+                case 'asistentes':
+                    filteredData = currentData.filter(p => p.estado === 'asistio' && !p.adicional);
+                    break;
+                case 'faltantes':
+                    filteredData = currentData.filter(p => p.estado === 'no-asistio');
+                    break;
+                case 'adicionales':
+                    filteredData = currentData.filter(p => p.adicional);
+                    break;
+                default:
+                    filteredData = currentData;
+            }
+            
+            renderTable(filteredData);
+        }
 
-            asistentes.forEach(row => {
+        function renderTable(data) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            data.forEach(persona => {
                 const tr = document.createElement('tr');
-                cols.forEach(col => {
-                    const td = document.createElement('td');
-                    td.textContent = row[col] || '';
-                    tr.appendChild(td);
-                });
-                body.appendChild(tr);
+                
+                // Estado
+                const tdEstado = document.createElement('td');
+                if (persona.adicional) {
+                    tdEstado.className = 'adicional';
+                    tdEstado.textContent = '🟦 ADICIONAL';
+                } else if (persona.estado === 'asistio') {
+                    tdEstado.className = 'asistio';
+                    tdEstado.textContent = '✅ ASISTIÓ';
+                } else {
+                    tdEstado.className = 'no-asistio';
+                    tdEstado.textContent = '❌ NO ASISTIÓ';
+                }
+                tr.appendChild(tdEstado);
+
+                // Institución
+                const tdInstitucion = document.createElement('td');
+                tdInstitucion.textContent = persona['Institución'] || 'No especificado';
+                tr.appendChild(tdInstitucion);
+
+                // Cargo/Rol
+                const tdCargo = document.createElement('td');
+                tdCargo.textContent = persona['Cargo/Rol'] || 'No especificado';
+                tr.appendChild(tdCargo);
+
+                // Nombre completo
+                const tdNombre = document.createElement('td');
+                tdNombre.textContent = persona['Nombres y apellidos completos'] || 'No especificado';
+                tr.appendChild(tdNombre);
+
+                // Documento
+                const tdDocumento = document.createElement('td');
+                tdDocumento.textContent = persona['No. de identificación'] || 'No especificado';
+                tr.appendChild(tdDocumento);
+
+                // Sexo
+                const tdSexo = document.createElement('td');
+                tdSexo.textContent = (persona['Género\n (M/F)'] || 'No especificado').replace('\n', ' ');
+                tr.appendChild(tdSexo);
+
+                // Municipio
+                const tdMunicipio = document.createElement('td');
+                tdMunicipio.textContent = persona['Lugar Origen'] || 'No especificado';
+                tr.appendChild(tdMunicipio);
+
+                // Teléfono
+                const tdTelefono = document.createElement('td');
+                tdTelefono.textContent = persona['Teléfono Móvil'] || 'No disponible';
+                tr.appendChild(tdTelefono);
+
+                tbody.appendChild(tr);
             });
         }
     </script>
