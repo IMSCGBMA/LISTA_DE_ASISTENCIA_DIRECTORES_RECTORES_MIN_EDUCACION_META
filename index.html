@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Asistencia</title>
+    <title>Dashboard de Asistencia Real</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
     <style>
@@ -129,37 +129,39 @@
         }
         .success { background-color: #d4edda; color: #155724; }
         .error { background-color: #f8d7da; color: #721c24; }
+        .asistio { color: #27ae60; font-weight: bold; }
+        .no-asistio { color: #e74c3c; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📊 Dashboard de Asistencia</h1>
-            <p>Sistema inteligente para analizar asistentes reales</p>
+            <h1>📊 Dashboard de Asistencia Real</h1>
+            <p>Comparación automática: Escaneados vs Lista oficial</p>
         </header>
 
         <div class="upload-section">
-            <h2>Subir Lista de Asistentes (CSV)</h2>
+            <h2>Subir archivo con ambas listas (CSV)</h2>
             <label for="csv-file" class="file-label">
                 📁 Seleccionar archivo CSV
             </label>
             <input type="file" id="csv-file" class="file-input" accept=".csv">
-            <p>El archivo debe contener columnas como: <em>Asistencia, Fecha Registro, Institución, Lugar Origen, etc.</em></p>
+            <p>El archivo debe contener: (1) lista de cédulas escaneadas y (2) lista oficial de invitados.</p>
             <div id="status-message" class="status-message hidden"></div>
         </div>
 
         <div id="dashboard" class="hidden">
             <div class="stats">
                 <div class="stat-box">
-                    <div>Total en lista</div>
-                    <div id="total-lista" class="stat-number">0</div>
+                    <div>Invitados</div>
+                    <div id="total-invitados" class="stat-number">0</div>
                 </div>
                 <div class="stat-box">
-                    <div>Asistieron</div>
+                    <div>Asistieron (escaneados)</div>
                     <div id="total-asistentes" class="stat-number">0</div>
                 </div>
                 <div class="stat-box">
-                    <div>% Asistencia</div>
+                    <div>% Asistencia real</div>
                     <div id="porcentaje-asistencia" class="stat-number">0%</div>
                 </div>
             </div>
@@ -193,7 +195,7 @@
             </div>
 
             <div class="card">
-                <h2 class="card-title">Lista de Asistentes</h2>
+                <h2 class="card-title">Lista de Asistentes Reales</h2>
                 <div style="max-height: 400px; overflow: auto;">
                     <table id="asistentes-table">
                         <thead><tr id="table-head"></tr></thead>
@@ -210,118 +212,111 @@
         let sexoChart = null;
         let cargoChart = null;
 
-        const headerMapping = {
-            'documento': ['número de documento', 'no. de identificación', 'identificación', 'cedula', 'dni', 'id', '#'],
-            'nombres': ['nombres y apellidos completos', 'nombre', 'nombres', 'primer nombre'],
-            'apellidos': ['primer apellido', 'segundo apellido', 'apellido'],
-            'sexo': ['género', 'sexo', 'género (m/f)', 'genero'],
-            'fecha_registro': ['fecha registro', 'fecha de registro', 'registro', 'asistencia fecha'],
-            'institucion': ['institución', 'institucion', 'empresa', 'organización'],
-            'cargo': ['cargo/rol', 'cargo', 'rol', 'puesto', 'ocupación'],
-            'lugar': ['lugar origen', 'origen', 'municipio', 'ciudad', 'departamento', 'lugar']
-        };
+        // Normaliza cédula: elimina puntos, espacios, guiones
+        function normalizarCedula(cedula) {
+            return (cedula || '').toString().replace(/[\s.,-]/g, '').trim();
+        }
 
         document.getElementById('csv-file').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
             const status = document.getElementById('status-message');
-            status.textContent = 'Procesando...';
+            status.textContent = 'Procesando archivo...';
             status.className = 'status-message';
             status.classList.remove('hidden');
 
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.data.length === 0) {
-                        showError('Archivo vacío');
-                        return;
+            // Leer como texto para dividir en bloques
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
+
+                // Encontrar el inicio de cada bloque
+                let idxBloque1 = -1, idxBloque2 = -1;
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].includes('CANTIDAD') && lines[i].includes('Número de Documento')) {
+                        idxBloque1 = i;
                     }
-
-                    const headers = results.meta.fields;
-                    const detected = detectHeaders(headers);
-                    let data = results.data.filter(row => 
-                        Object.values(row).some(v => v && v.toString().trim())
-                    );
-
-                    // Determinar quiénes asistieron
-                    const fechaRegKey = detected.fecha_registro?.original;
-                    data.forEach(row => {
-                        row.asistio = fechaRegKey ? !!row[fechaRegKey]?.toString().trim() : false;
-                    });
-
-                    const asistentes = data.filter(r => r.asistio);
-                    const total = data.length;
-                    const totalAsistieron = asistentes.length;
-                    const porcentaje = total > 0 ? ((totalAsistieron / total) * 100).toFixed(1) : 0;
-
-                    // Actualizar stats
-                    document.getElementById('total-lista').textContent = total;
-                    document.getElementById('total-asistentes').textContent = totalAsistieron;
-                    document.getElementById('porcentaje-asistencia').textContent = `${porcentaje}%`;
-
-                    // Generar gráficos
-                    renderCharts(asistentes, detected);
-
-                    // Renderizar tabla
-                    renderTable(asistentes, detected);
-
-                    document.getElementById('dashboard').classList.remove('hidden');
-                    status.textContent = `✅ Cargado: ${totalAsistieron} asistentes de ${total} registrados.`;
-                    status.className = 'status-message success';
-                },
-                error: function(err) {
-                    showError('Error: ' + err.message);
+                    if (lines[i].includes('Institución') && lines[i].includes('Cargo/Rol') && lines[i].includes('Asistencia')) {
+                        idxBloque2 = i;
+                        break; // asumimos que el bloque 2 viene después
+                    }
                 }
-            });
+
+                if (idxBloque1 === -1 || idxBloque2 === -1) {
+                    showError('No se encontraron los dos bloques de datos en el archivo.');
+                    return;
+                }
+
+                // Extraer bloques
+                const bloque1Lines = lines.slice(idxBloque1, idxBloque2);
+                const bloque2Lines = lines.slice(idxBloque2);
+
+                // Parsear bloque 1: cédulas escaneadas
+                const bloque1CSV = bloque1Lines.join('\n');
+                const bloque1Data = Papa.parse(bloque1CSV, { header: true, skipEmptyLines: true }).data;
+                const cedulasEscaneadas = new Set();
+                bloque1Data.forEach(row => {
+                    const ced = normalizarCedula(row['Número de Documento']);
+                    if (ced) cedulasEscaneadas.add(ced);
+                });
+
+                // Parsear bloque 2: lista oficial
+                const bloque2CSV = bloque2Lines.join('\n');
+                const bloque2Data = Papa.parse(bloque2CSV, { header: true, skipEmptyLines: true }).data;
+
+                // Marcar asistencia real
+                const asistentesReales = [];
+                bloque2Data.forEach(row => {
+                    const cedLista = normalizarCedula(row['No. de identificación']);
+                    row.asistioReal = cedulasEscaneadas.has(cedLista);
+                    if (row.asistioReal) {
+                        asistentesReales.push(row);
+                    }
+                });
+
+                const totalInvitados = bloque2Data.length;
+                const totalAsistieron = asistentesReales.length;
+                const porcentaje = totalInvitados > 0 ? ((totalAsistieron / totalInvitados) * 100).toFixed(1) : 0;
+
+                // Actualizar interfaz
+                document.getElementById('total-invitados').textContent = totalInvitados;
+                document.getElementById('total-asistentes').textContent = totalAsistieron;
+                document.getElementById('porcentaje-asistencia').textContent = `${porcentaje}%`;
+
+                // Renderizar gráficos y tabla
+                renderCharts(asistentesReales);
+                renderTable(asistentesReales);
+
+                document.getElementById('dashboard').classList.remove('hidden');
+                status.textContent = `✅ Procesado: ${totalAsistieron} asistieron de ${totalInvitados} invitados.`;
+                status.className = 'status-message success';
+            };
+            reader.readAsText(file);
         });
 
-        function detectHeaders(headers) {
-            const detected = {};
-            headers.forEach(h => {
-                const clean = h.toLowerCase().trim();
-                for (const [key, patterns] of Object.entries(headerMapping)) {
-                    if (patterns.some(p => clean.includes(p))) {
-                        detected[key] = { original: h };
-                        return;
-                    }
-                }
-                // Si no coincide, lo guardamos como extra
-                detected[h] = { original: h };
-            });
-            return detected;
-        }
-
-        function renderCharts(asistentes, detected) {
-            // Limpiar gráficos anteriores
+        function renderCharts(asistentes) {
             [institucionChart, municipioChart, sexoChart, cargoChart].forEach(c => {
                 if (c) c.destroy();
             });
 
-            // Helper para contar
             const countBy = (key) => {
-                const header = detected[key]?.original;
-                if (!header) return {};
                 const counts = {};
                 asistentes.forEach(r => {
-                    const val = (r[header] || 'No especificado').toString().trim() || 'No especificado';
+                    const val = (r[key] || 'No especificado').toString().trim() || 'No especificado';
                     counts[val] = (counts[val] || 0) + 1;
                 });
                 return counts;
             };
 
             const ctx1 = document.getElementById('institucionChart').getContext('2d');
-            const instData = countBy('institucion');
+            const instData = countBy('Institución');
             institucionChart = new Chart(ctx1, {
                 type: 'bar',
                 data: {
                     labels: Object.keys(instData),
-                    datasets: [{
-                        label: 'Asistentes por institución',
-                        data: Object.values(instData),
-                        backgroundColor: '#3498db'
-                    }]
+                    datasets: [{ label: 'Asistentes', data: Object.values(instData), backgroundColor: '#3498db' }]
                 },
                 options: {
                     indexAxis: 'y',
@@ -333,15 +328,12 @@
             });
 
             const ctx2 = document.getElementById('municipioChart').getContext('2d');
-            const munData = countBy('lugar');
+            const munData = countBy('Lugar Origen');
             municipioChart = new Chart(ctx2, {
                 type: 'pie',
-                data: {
+                 {
                     labels: Object.keys(munData),
-                    datasets: [{
-                        data: Object.values(munData),
-                        backgroundColor: ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#34495e','#f1c40f']
-                    }]
+                    datasets: [{ data: Object.values(munData), backgroundColor: ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c'] }]
                 },
                 options: {
                     responsive: true,
@@ -351,15 +343,12 @@
             });
 
             const ctx3 = document.getElementById('sexoChart').getContext('2d');
-            const sexoData = countBy('sexo');
+            const sexoData = countBy('Género\n (M/F)');
             sexoChart = new Chart(ctx3, {
                 type: 'doughnut',
-                data: {
+                 {
                     labels: Object.keys(sexoData),
-                    datasets: [{
-                        data: Object.values(sexoData),
-                        backgroundColor: ['#3498db','#e74c3c','#95a5a6']
-                    }]
+                    datasets: [{ data: Object.values(sexoData), backgroundColor: ['#3498db','#e74c3c'] }]
                 },
                 options: {
                     responsive: true,
@@ -369,16 +358,12 @@
             });
 
             const ctx4 = document.getElementById('cargoChart').getContext('2d');
-            const cargoData = countBy('cargo');
+            const cargoData = countBy('Cargo/Rol');
             cargoChart = new Chart(ctx4, {
                 type: 'bar',
                 data: {
                     labels: Object.keys(cargoData),
-                    datasets: [{
-                        label: 'Asistentes por cargo',
-                        data: Object.values(cargoData),
-                        backgroundColor: '#9b59b6'
-                    }]
+                    datasets: [{ label: 'Asistentes', data: Object.values(cargoData), backgroundColor: '#9b59b6' }]
                 },
                 options: {
                     indexAxis: 'y',
@@ -390,41 +375,25 @@
             });
         }
 
-        function renderTable(asistentes, detected) {
+        function renderTable(asistentes) {
             const head = document.getElementById('table-head');
             const body = document.getElementById('table-body');
             head.innerHTML = '';
             body.innerHTML = '';
 
-            // Mostrar solo columnas relevantes
-            const cols = ['documento', 'nombres', 'institucion', 'cargo', 'lugar', 'sexo', 'fecha_registro'];
-            const displayNames = {
-                documento: 'Documento',
-                nombres: 'Nombre',
-                institucion: 'Institución',
-                cargo: 'Cargo',
-                lugar: 'Municipio',
-                sexo: 'Sexo',
-                fecha_registro: 'Fecha Registro'
-            };
-
-            cols.forEach(key => {
-                if (detected[key]) {
-                    const th = document.createElement('th');
-                    th.textContent = displayNames[key] || key;
-                    head.appendChild(th);
-                }
+            const cols = ['Institución', 'Cargo/Rol', 'Nombres y apellidos completos', 'Lugar Origen', 'Género\n (M/F)', 'No. de identificación'];
+            cols.forEach(col => {
+                const th = document.createElement('th');
+                th.textContent = col.replace('\n', ' ');
+                head.appendChild(th);
             });
 
             asistentes.forEach(row => {
                 const tr = document.createElement('tr');
-                cols.forEach(key => {
-                    if (detected[key]) {
-                        const td = document.createElement('td');
-                        const val = row[detected[key].original] || '';
-                        td.textContent = val;
-                        tr.appendChild(td);
-                    }
+                cols.forEach(col => {
+                    const td = document.createElement('td');
+                    td.textContent = row[col] || '';
+                    tr.appendChild(td);
                 });
                 body.appendChild(tr);
             });
