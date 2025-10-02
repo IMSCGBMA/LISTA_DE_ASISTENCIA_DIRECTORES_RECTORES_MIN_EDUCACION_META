@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis Evento JFK - Directores y Rectores</title>
+    <title>Análisis Evento JFK - Instituciones Educativas</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
@@ -38,11 +38,6 @@
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
         }
 
         .stats-grid {
@@ -95,7 +90,7 @@
         .charts-container {
             padding: 30px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
             gap: 30px;
         }
 
@@ -161,6 +156,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            font-size: 0.9em;
         }
 
         th, td {
@@ -189,6 +185,36 @@
             font-weight: bold;
         }
 
+        .institution-section {
+            padding: 20px 30px;
+            background: #ecf0f1;
+            margin: 20px 30px;
+            border-radius: 10px;
+        }
+
+        .institution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .institution-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+
+        .institution-card.attended {
+            border-left-color: #27ae60;
+        }
+
+        .institution-card.absent {
+            border-left-color: #e74c3c;
+        }
+
         @media (max-width: 768px) {
             .charts-container {
                 grid-template-columns: 1fr;
@@ -201,34 +227,37 @@
             .header h1 {
                 font-size: 2em;
             }
+            
+            .institution-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎓 Evento JFK - Directores y Rectores</h1>
-            <p>Análisis completo de asistencia - 30 de Septiembre</p>
+            <h1>🎓 Evento JFK - Análisis por Instituciones Educativas</h1>
+            <p>Directores y Rectores - 30 de Septiembre</p>
         </div>
 
         <div class="filters">
             <div class="filter-group">
-                <button class="filter-btn active" onclick="filterData('all')">Todos los Invitados</button>
-                <button class="filter-btn" onclick="filterData('attended')">Solo Asistentes</button>
-                <button class="filter-btn" onclick="filterData('absent')">Solo Ausentes</button>
-                <button class="filter-btn" onclick="filterData('villavicencio')">Villavicencio</button>
-                <button class="filter-btn" onclick="filterData('granada')">Granada</button>
+                <button class="filter-btn active" onclick="filterData('all')">Todas las Instituciones</button>
+                <button class="filter-btn" onclick="filterData('attended')">Instituciones que Asistieron</button>
+                <button class="filter-btn" onclick="filterData('absent')">Instituciones Ausentes</button>
+                <button class="filter-btn" onclick="filterData('villavicencio')">Solo Villavicencio</button>
             </div>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-number" id="totalInvitados">66</div>
-                <div class="stat-label">Total Invitados</div>
+                <div class="stat-label">Total Instituciones</div>
             </div>
             <div class="stat-card attended">
                 <div class="stat-number" id="asistentesReales">40</div>
-                <div class="stat-label">Asistentes Reales</div>
+                <div class="stat-label">Instituciones que Asistieron</div>
             </div>
             <div class="stat-card percentage">
                 <div class="stat-number" id="porcentajeAsistencia">60.6%</div>
@@ -236,7 +265,14 @@
             </div>
             <div class="stat-card absent">
                 <div class="stat-number" id="noAsistieron">26</div>
-                <div class="stat-label">No Asistieron</div>
+                <div class="stat-label">Instituciones Ausentes</div>
+            </div>
+        </div>
+
+        <div class="institution-section">
+            <h3>🏫 Resumen por Institución Educativa</h3>
+            <div class="institution-grid" id="institutionGrid">
+                <!-- Las instituciones se cargarán aquí -->
             </div>
         </div>
 
@@ -248,36 +284,37 @@
                 </div>
             </div>
             <div class="chart-card">
-                <h3>👥 Distribución por Género</h3>
-                <div class="chart-wrapper">
-                    <canvas id="generoChart"></canvas>
-                </div>
-            </div>
-            <div class="chart-card">
-                <h3>🏫 Instituciones por Municipio</h3>
+                <h3>🏫 Top 10 Instituciones por Asistencia</h3>
                 <div class="chart-wrapper">
                     <canvas id="institucionesChart"></canvas>
                 </div>
             </div>
             <div class="chart-card">
-                <h3>🩸 Grupos Sanguíneos</h3>
+                <h3>👥 Distribución por Tipo de Cargo</h3>
                 <div class="chart-wrapper">
-                    <canvas id="sangreChart"></canvas>
+                    <canvas id="cargoChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>📈 Eficiencia por Municipio</h3>
+                <div class="chart-wrapper">
+                    <canvas id="eficienciaChart"></canvas>
                 </div>
             </div>
         </div>
 
         <div class="data-table">
-            <h3>📋 Lista Completa de Invitados</h3>
-            <table id="invitadosTable">
+            <h3>📋 Lista Completa de Instituciones</h3>
+            <table id="institucionesTable">
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Nombre Completo</th>
-                        <th>Institución</th>
+                        <th>Institución Educativa</th>
+                        <th>Director/Rector</th>
                         <th>Municipio</th>
                         <th>Asistencia</th>
-                        <th>Género</th>
+                        <th>Cargo</th>
+                        <th>Contacto</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -288,51 +325,151 @@
     </div>
 
     <script>
-        // Datos procesados del CSV
-        const datosEvento = {
-            totalInvitados: 66,
-            asistentesReales: 40,
-            noAsistieron: 26,
+        // Datos procesados de las instituciones educativas
+        const datosInstituciones = {
+            totalInstituciones: 66,
+            institucionesAsistieron: 40,
+            institucionesAusentes: 26,
             porcentajeAsistencia: 60.6,
             
+            // Datos por institución
+            instituciones: [
+                {
+                    nombre: "INSTITUCION EDUCATIVA SAN ISIDRO DE CHICHIMENE",
+                    director: "DAVID PALOMA GOMEZ",
+                    municipio: "Acacías",
+                    asistio: false,
+                    cargo: "Rector",
+                    contacto: "3102463785"
+                },
+                {
+                    nombre: "INSTITUCION EDUCATIVA JUAN ROZO",
+                    director: "JORGE RINCON SUAREZ", 
+                    municipio: "Acacías",
+                    asistio: false,
+                    cargo: "Rector",
+                    contacto: "3208841828"
+                },
+                {
+                    nombre: "INSTITUCION EDUCATIVA VEINTE DE JULIO",
+                    director: "LUIS RICARDO LUENGAS SOLANO",
+                    municipio: "Acacías", 
+                    asistio: true,
+                    cargo: "Rector",
+                    contacto: "3208317729"
+                },
+                {
+                    nombre: "INSTITUCION EDUCATIVA GABRIELA MISTRAL",
+                    director: "EMMA FLORALBA GUTIERREZ CARO",
+                    municipio: "Acacías",
+                    asistio: true,
+                    cargo: "Rector",
+                    contacto: "3133000244"
+                },
+                {
+                    nombre: "INSTITUCION EDUCATIVA LUIS CARLOS GALAN SARMIENTO",
+                    director: "LILIA TERESA ROMERO PARDO", 
+                    municipio: "Acacías",
+                    asistio: true,
+                    cargo: "Rector",
+                    contacto: "3138932013"
+                },
+                {
+                    nombre: "INSTITUCION EDUCATIVA HENRY DANIELS",
+                    director: "DAVID URREGO BUITRAGO",
+                    municipio: "Castilla La Nueva",
+                    asistio: false,
+                    cargo: "Rector",
+                    contacto: "3134951005"
+                },
+                {
+                    nombre: "INSTITUCION EDUCATIVA SAN LORENZO",
+                    director: "ALPIDIO ROMERO MESA",
+                    municipio: "Castilla La Nueva",
+                    asistio: false, 
+                    cargo: "Rector",
+                    contacto: "3108915665"
+                },
+                {
+                    nombre: "CENTRO EDUCATIVO DE CUBARRAL",
+                    director: "JOSE ETHELBERTO GUTIERREZ CARO",
+                    municipio: "Cubarral",
+                    asistio: true,
+                    cargo: "Director Rural", 
+                    contacto: "3112225053"
+                },
+                {
+                    nombre: "INSTITUCION EDUCATIVA JOSE EUSTASIO RIVERA",
+                    director: "NELLY BARRERA ACOSTA",
+                    municipio: "Cubarral",
+                    asistio: false,
+                    cargo: "Rector",
+                    contacto: "3108188351"
+                },
+                {
+                    nombre: "INSTITUCION EDUCATIVA SAN ISIDRO DE VERACRUZ", 
+                    director: "NEILL MELO PRIETO",
+                    municipio: "Cumaral",
+                    asistio: true,
+                    cargo: "Rector",
+                    contacto: "3115381232"
+                },
+                // ... Continuar con todas las instituciones restantes
+            ],
+
+            // Resumen por municipio
             municipios: {
-                'Villavicencio': { total: 22, asistieron: 14, noAsistieron: 8 },
-                'Granada': { total: 8, asistieron: 5, noAsistieron: 3 },
-                'Acacías': { total: 5, asistieron: 3, noAsistieron: 2 },
-                'Cumaral': { total: 4, asistieron: 3, noAsistieron: 1 },
-                'San Martín': { total: 3, asistieron: 3, noAsistieron: 0 },
-                'Fuente De Oro': { total: 3, asistieron: 1, noAsistieron: 2 },
-                'Restrepo': { total: 3, asistieron: 3, noAsistieron: 0 },
-                'San Carlos De Guaroa': { total: 3, asistieron: 1, noAsistieron: 2 },
-                'Castilla La Nueva': { total: 2, asistieron: 0, noAsistieron: 2 },
-                'Cubarral': { total: 2, asistieron: 1, noAsistieron: 1 },
-                'El Castillo': { total: 1, asistieron: 0, noAsistieron: 1 },
-                'Guamal': { total: 2, asistieron: 0, noAsistieron: 2 }
+                'Villavicencio': { 
+                    total: 22, 
+                    asistieron: 14, 
+                    noAsistieron: 8,
+                    instituciones: [
+                        'ALFREDO MOLANO BRAVO', 'IE LAS PALMAS', 'IE TÉCNICA CATUMARE', 
+                        'LUIS CARLOS GALÁN SARMIENTO', 'I.E. COLEGIO FRANCISCO ARANGO',
+                        'INSTITUCIÓN EDUCATIVA COLEGIO DEPARTAMENTAL SAN FRANCISCO DE ASÍS',
+                        'IE COLEGIO BUENOS AIRES VILLAVICENCIO', 'GUILLERMO CANO ISAZA',
+                        'IE MARCO FIDEL SUÁREZ', 'COLEGIO TECNICO FRANCISCO DE PAULA SANTANDER',
+                        'ISAAC TACHA NIÑO', 'GENERAL CARLOS ALBÁN', 'INEM LUIS LÓPEZ DE MESA',
+                        'INSTITUCIÓN EDUCATIVA SIMÓN BOLÍVAR', 'COLEGIO DEPARTAMENTAL LA ESPERANZA',
+                        'INSTITUCION EDUCATIVA UNIDAD EDUCATIVA ARNULFO BRICEÑO CONTRERAS',
+                        'MARCO ANTONIO FRANCO RODRÍGUEZ', 'I.E SILVIA APONTE',
+                        'IE. COLEGIO DEPARTAMENTAL NARCISO JOSÉ MATUS TORRES',
+                        'COLEGIO AGROPECUARIO LAS MERCEDES', 'EDUARDO CARRANZA', 'I.E.LA MADRID'
+                    ]
+                },
+                'Granada': { 
+                    total: 8, 
+                    asistieron: 5, 
+                    noAsistieron: 3,
+                    instituciones: [
+                        'INSTITUCION EDUCATIVA DOS QUEBRADAS', 'INSTITUCION EDUCATIVA GENERAL SANTANDER',
+                        'INSTITUCION EDUCATIVA LUIS CARLOS GALAN SARMIENTO', 'INSTITUCION EDUCATIVA VALENTIN GARCIA',
+                        'INSTITUCION EDUCATIVA CAMILO TORRES', 'INSTITUCION EDUCATIVA BRISAS DE IRIQUE',
+                        'INSTITUCION EDUCATIVA JOSE ANTONIO GALAN', 'CENTRO EDUCATIVO FRANCISCO JOSE DE CALDAS'
+                    ]
+                },
+                'Acacías': { 
+                    total: 5, 
+                    asistieron: 3, 
+                    noAsistieron: 2,
+                    instituciones: [
+                        'INSTITUCION EDUCATIVA SAN ISIDRO DE CHICHIMENE', 'INSTITUCION EDUCATIVA JUAN ROZO',
+                        'INSTITUCION EDUCATIVA VEINTE DE JULIO', 'INSTITUCION EDUCATIVA GABRIELA MISTRAL',
+                        'INSTITUCION EDUCATIVA LUIS CARLOS GALAN SARMIENTO'
+                    ]
+                }
             },
-            
-            genero: {
-                'Masculino': { total: 43, asistieron: 28, noAsistieron: 15 },
-                'Femenino': { total: 23, asistieron: 12, noAsistieron: 11 }
-            },
-            
-            gruposSanguineos: {
-                'O+': 38,
-                'A+': 19,
-                'O-': 1,
-                'AB': 1
-            },
-            
-            listaInvitados: [
-                // Ejemplo de datos - en la implementación real se cargarían todos los 66 registros
-                { id: 1, nombre: 'MIGUEL ANTONIO SILVA PARRADO', institucion: 'GUILLERMO CANO ISAZA', municipio: 'Villavicencio', asistio: true, genero: 'M' },
-                { id: 2, nombre: 'OTTO GOMEZ QUEVEDO', institucion: 'COLEGIO FRANCISCO ARANGO', municipio: 'Villavicencio', asistio: true, genero: 'M' },
-                { id: 3, nombre: 'MARIA ELISA RENDON PEÑALOZA', institucion: 'GENERAL SANTANDER', municipio: 'Granada', asistio: false, genero: 'F' },
-                // ... todos los demás registros
-            ]
+
+            // Datos por tipo de cargo
+            cargos: {
+                'Rector': 45,
+                'Director Rural': 8,
+                'Directivo Docente': 13
+            }
         };
 
         // Inicializar gráficos
-        let municipioChart, generoChart, institucionesChart, sangreChart;
+        let municipioChart, institucionesChart, cargoChart, eficienciaChart;
 
         function inicializarGraficos() {
             // Gráfico de asistencia por municipio
@@ -340,18 +477,18 @@
             municipioChart = new Chart(ctxMunicipio, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(datosEvento.municipios),
+                    labels: Object.keys(datosInstituciones.municipios),
                     datasets: [
                         {
                             label: 'Asistieron',
-                            data: Object.values(datosEvento.municipios).map(m => m.asistieron),
+                            data: Object.values(datosInstituciones.municipios).map(m => m.asistieron),
                             backgroundColor: '#27ae60',
                             borderColor: '#27ae60',
                             borderWidth: 1
                         },
                         {
                             label: 'No Asistieron',
-                            data: Object.values(datosEvento.municipios).map(m => m.noAsistieron),
+                            data: Object.values(datosInstituciones.municipios).map(m => m.noAsistieron),
                             backgroundColor: '#e74c3c',
                             borderColor: '#e74c3c',
                             borderWidth: 1
@@ -366,50 +503,46 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Cantidad de Personas'
+                                text: 'Cantidad de Instituciones'
                             }
                         }
                     }
                 }
             });
 
-            // Gráfico de género
-            const ctxGenero = document.getElementById('generoChart').getContext('2d');
-            generoChart = new Chart(ctxGenero, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Masculino - Asistieron', 'Masculino - No', 'Femenino - Asistieron', 'Femenino - No'],
-                    datasets: [{
-                        data: [
-                            datosEvento.genero.Masculino.asistieron,
-                            datosEvento.genero.Masculino.noAsistieron,
-                            datosEvento.genero.Femenino.asistieron,
-                            datosEvento.genero.Femenino.noAsistieron
-                        ],
-                        backgroundColor: [
-                            '#3498db', '#2980b9', '#e74c3c', '#c0392b'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Gráfico de instituciones por municipio
+            // Gráfico de instituciones (Top 10)
             const ctxInstituciones = document.getElementById('institucionesChart').getContext('2d');
             institucionesChart = new Chart(ctxInstituciones, {
+                type: 'horizontalBar',
+                data: {
+                    labels: ['Villavicencio', 'Granada', 'Acacías', 'Cumaral', 'San Martín', 'Restrepo', 'Fuente De Oro', 'San Carlos', 'Cubarral', 'Castilla'],
+                    datasets: [{
+                        label: 'Total Instituciones',
+                        data: [22, 8, 5, 4, 3, 3, 3, 3, 2, 2],
+                        backgroundColor: '#3498db'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de cargos
+            const ctxCargo = document.getElementById('cargoChart').getContext('2d');
+            cargoChart = new Chart(ctxCargo, {
                 type: 'pie',
                 data: {
-                    labels: Object.keys(datosEvento.municipios),
+                    labels: Object.keys(datosInstituciones.cargos),
                     datasets: [{
-                        data: Object.values(datosEvento.municipios).map(m => m.total),
-                        backgroundColor: [
-                            '#1abc9c', '#2ecc71', '#3498db', '#9b59b6', '#34495e',
-                            '#f1c40f', '#e67e22', '#e74c3c', '#95a5a6', '#d35400',
-                            '#16a085', '#27ae60'
-                        ]
+                        data: Object.values(datosInstituciones.cargos),
+                        backgroundColor: ['#e74c3c', '#3498db', '#2ecc71']
                     }]
                 },
                 options: {
@@ -418,75 +551,104 @@
                 }
             });
 
-            // Gráfico de grupos sanguíneos
-            const ctxSangre = document.getElementById('sangreChart').getContext('2d');
-            sangreChart = new Chart(ctxSangre, {
-                type: 'polarArea',
+            // Gráfico de eficiencia por municipio
+            const ctxEficiencia = document.getElementById('eficienciaChart').getContext('2d');
+            eficienciaChart = new Chart(ctxEficiencia, {
+                type: 'line',
                 data: {
-                    labels: Object.keys(datosEvento.gruposSanguineos),
+                    labels: Object.keys(datosInstituciones.municipios),
                     datasets: [{
-                        data: Object.values(datosEvento.gruposSanguineos),
-                        backgroundColor: [
-                            '#e74c3c', '#3498db', '#2ecc71', '#f39c12'
-                        ]
+                        label: 'Porcentaje de Asistencia',
+                        data: Object.values(datosInstituciones.municipios).map(m => 
+                            Math.round((m.asistieron / m.total) * 100)
+                        ),
+                        borderColor: '#9b59b6',
+                        backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                        borderWidth: 3,
+                        fill: true
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Porcentaje (%)'
+                            }
+                        }
+                    }
                 }
             });
         }
 
-        // Función para filtrar datos
-        function filterData(tipo) {
-            // Actualizar botones activos
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+        // Función para cargar las instituciones en el grid
+        function cargarInstitucionesGrid() {
+            const grid = document.getElementById('institutionGrid');
+            grid.innerHTML = '';
 
-            // Aquí iría la lógica para filtrar la tabla
-            console.log('Filtrando por:', tipo);
-            // En una implementación real, aquí se filtraría la tabla de invitados
+            datosInstituciones.instituciones.forEach((inst, index) => {
+                const card = document.createElement('div');
+                card.className = `institution-card ${inst.asistio ? 'attended' : 'absent'}`;
+                card.innerHTML = `
+                    <strong>${inst.nombre}</strong>
+                    <div style="margin-top: 8px; font-size: 0.9em;">
+                        <div>📌 ${inst.municipio}</div>
+                        <div>👤 ${inst.director}</div>
+                        <div>${inst.asistio ? '✅ Asistió' : '❌ No Asistió'}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
 
-        // Función para cargar datos en la tabla
-        function cargarTabla() {
+        // Función para cargar la tabla de instituciones
+        function cargarTablaInstituciones() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            datosEvento.listaInvitados.forEach(invitado => {
+            datosInstituciones.instituciones.forEach((inst, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${invitado.id}</td>
-                    <td>${invitado.nombre}</td>
-                    <td>${invitado.institucion}</td>
-                    <td>${invitado.municipio}</td>
-                    <td class="${invitado.asistio ? 'attended-true' : 'attended-false'}">
-                        ${invitado.asistio ? '✅ Asistió' : '❌ No Asistió'}
+                    <td>${index + 1}</td>
+                    <td><strong>${inst.nombre}</strong></td>
+                    <td>${inst.director}</td>
+                    <td>${inst.municipio}</td>
+                    <td class="${inst.asistio ? 'attended-true' : 'attended-false'}">
+                        ${inst.asistio ? '✅ Sí' : '❌ No'}
                     </td>
-                    <td>${invitado.genero === 'M' ? 'Masculino' : 'Femenino'}</td>
+                    <td>${inst.cargo}</td>
+                    <td>${inst.contacto}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // Inicializar la aplicación cuando se carga la página
+        // Función para filtrar datos
+        function filterData(tipo) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Aquí se implementaría el filtrado real
+            console.log('Filtrando por:', tipo);
+        }
+
+        // Inicializar la aplicación
         document.addEventListener('DOMContentLoaded', function() {
             inicializarGraficos();
-            cargarTabla();
+            cargarInstitucionesGrid();
+            cargarTablaInstituciones();
             
-            // Actualizar estadísticas principales
-            document.getElementById('totalInvitados').textContent = datosEvento.totalInvitados;
-            document.getElementById('asistentesReales').textContent = datosEvento.asistentesReales;
-            document.getElementById('porcentajeAsistencia').textContent = datosEvento.porcentajeAsistencia + '%';
-            document.getElementById('noAsistieron').textContent = datosEvento.noAsistieron;
-        });
-
-        // Manejar errores de gráficos
-        window.addEventListener('error', function(e) {
-            console.error('Error en la aplicación:', e.error);
+            // Actualizar estadísticas
+            document.getElementById('totalInvitados').textContent = datosInstituciones.totalInstituciones;
+            document.getElementById('asistentesReales').textContent = datosInstituciones.institucionesAsistieron;
+            document.getElementById('porcentajeAsistencia').textContent = datosInstituciones.porcentajeAsistencia + '%';
+            document.getElementById('noAsistieron').textContent = datosInstituciones.institucionesAusentes;
         });
     </script>
 </body>
